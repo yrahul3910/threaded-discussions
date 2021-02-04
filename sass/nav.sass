@@ -1,0 +1,87 @@
+%navigation-base
+    background-color: white
+    display: flex
+
+    @media screen and (min-width: 320px) and (max-width: 480px)
+        justify-content: flex-start
+        flex-direction: column
+
+    margin: 0
+    position: sticky
+
+    &.expanded
+        height: 50%
+
+        li
+            display: block
+
+    a
+        color: $grey
+        text-decoration: none !important
+
+    i
+        color: $grey
+
+    li
+        color: $grey
+        transition: color .5s ease
+        list-style-type: none
+
+        @media screen and (min-width: 481px)
+            /* On larger devices, don't show the hamburger menu. */
+            display: inline-block
+
+            &#hamburger
+                display: none
+
+        @media screen and (min-width: 320px) and (max-width: 480px)
+            /* On smaller devices, show *only* the hamburger menu. */
+            display: none
+
+            &#hamburger
+                display: inline-block
+
+        margin: 0
+        cursor: pointer
+        padding: 10px 20px
+        border-radius: 4px
+
+        transition: background-color 0.5s ease-out
+
+        &:not(.search):hover
+            background-color: rgba(0, 0, 0, 0.14)
+            
+.sidebar
+    @extend %navigation-base
+
+    @media screen and (min-width: 481px)
+        justify-content: flex-start
+
+    border-right: 1px solid $grey
+    left: 0
+    padding-top: 0
+
+.nav-sticky
+    @extend %navigation-base
+
+    @media screen and (min-width: 481px)
+        /* On higher-res devices, the menu can fit in the center
+           along the width of the device. */
+        justify-content: space-between
+        align-items: center
+
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25)
+    padding-left: 0
+    top: 0
+
+    h3, h4
+        color: black
+
+    &.expanded
+        li
+            &:not(:first-child)
+                align-self: center
+    
+    li
+        a:hover
+            text-decoration: none

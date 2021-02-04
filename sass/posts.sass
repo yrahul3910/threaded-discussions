@@ -1,0 +1,39 @@
+.post
+    box-shadow: 3px 4px 5px $grey;
+    margin: 40px
+
+    *
+        color: unset
+
+    &.collapsed .post-body
+        display: none
+
+    .post-header
+        display: flex
+        cursor: pointer
+        padding: 20px
+
+        img
+            width: 40px
+            border-radius: 50%
+            object-fit: contain
+            margin: 5px 10px
+
+        .poster-details
+            display: flex
+            flex-direction: column
+            justify-content: center
+
+            .poster-name
+                color: black
+                font-weight: bold
+
+    .post-body
+        color: black
+        padding: 10px 10px 20px 10px
+
+.poster-username
+    color: $grey
+    font-size: .8em
+    font-weight: lighter
+
