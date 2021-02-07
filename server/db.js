@@ -128,148 +128,6 @@ exports.register = (username, pwd, name, callback) => {
     client.close();
 };
 
-exports.uploadProfileImage = async(username, profileImage) => {
-    const client = new MongoClient(uri, { useNewUrlParser: true });
-    const result = await client.connect(async err => {
-        if (err) throw err;
-
-        const collection = client.db('db').collection('users');
-
-        const result = await collection.findOneAndUpdate({ username },
-            { profileImage });
-
-        return result;
-    });
-
-    return result;
-};
-
-/**
- * Gets all posts by a user.
- * @param {string} username - The username.
- */
-exports.getPostsByUser = async username => {
-    const client = new MongoClient(uri, { useNewUrlParser: true });
-    await client.connect();
-    const collection = client.db('db').collection('posts');
-    const posts = collection.find({ username });
-
-    if (!posts) return null;
-
-    const result = await posts.toArray();
-    return result;
-};
-
-/**
- * Gets all the posts by the user's friends and the user himself.
- * @param {string} username - Username decoded from token
- * @param {Function} callback - A callback function.
- */
-exports.getFriendPosts = async(username, callback) => {
-    const client = new MongoClient(uri, { useNewUrlParser: true });
-    client.connect(err => {
-        if (err) throw err;
-
-        const collection = client.db('db').collection('friends');
-        collection.find({ $or: [{ user1: username }, { user2: username }]}, async(e, friends) => {
-            if (e) {
-                callback({
-                    success: false,
-                    message: 'Could not locate friends'
-                });
-                return;
-            }
-
-            const f = await friends.toArray();
-            const post_coll = client.db('db').collection('posts');
-            post_coll.find({
-                username: {
-                    $in: f.map(x => x.user1).concat(
-                        f.map(x => x.user2))
-                }
-            }, { _id: 0 }, async(postErr, posts) => {
-                if (postErr) {
-                    callback({
-                        success: false,
-                        message: 'Could not find posts'
-                    });
-                    return;
-                }
-
-                const postsArr = await posts.toArray();
-                callback(null, postsArr);
-            });
-        });
-    });
-};
-
-/**
- * Updates a user's password.
- * @param {string} username - The username.
- * @param {string} pwd - Plain-text password.
- */
-exports.updatePassword = async(username, pwd) => {
-    const client = new MongoClient(uri, { useNewUrlParser: true });
-    client.connect(async err => {
-        if (err) throw err;
-
-        const collection = client.db('db').collection('users');
-
-        const hash = await bcrypt.hash(pwd, 10);
-
-        if (!hash) return false;
-
-        const result = await collection.findOneAndUpdate({ username },
-            { $set: { password: hash } });
-
-        return result;
-    });
-};
-
-/**
- * Checks whether two users are friends.
- * @param {string} user1 - Username of first user
- * @param {string} user2 - Username of second user
- */
-exports.areFriends = async(user1, user2) => {
-    const client = new MongoClient(uri, { useNewUrlParser: true });
-    client.connect(err => {
-        if (err) throw err;
-
-        const collection = client.db('db').collection('friends');
-        collection.find({
-            user1,
-            user2
-        }, async(e, friends) => {
-            if (e) {return false;}
-
-            const f = await friends.toArray();
-            return f.length > 0;
-        });
-    });
-};
-
-/**
- * Gets the privacy mode of the user.
- * @param {string} username - Username.
- */
-exports.getPrivacyMode = async username => {
-    const client = new MongoClient(uri, { useNewUrlParser: true });
-    await client.connect();
-    const collection = client.db('db').collection('users');
-
-    const result = await collection.findOne({ username },
-        {
-            username: 0,
-            name: 0,
-            _id: 0,
-            dp: 0,
-            privacy: 1
-        });
-
-    return result;
-};
-
 /**
  * Deletes a user from the database.
  * @param {string} username - The username of the user to delete.
@@ -287,21 +145,37 @@ exports.deleteUser = async username => {
 };
 
 /**
- * Fetches user details.
- * @param {string} username - The username
+ * Fetches a session.
+ * @param {string} id - The session ID
  */
-exports.getUserDetails = async username => {
+exports.getComments = async id => {
     const client = new MongoClient(uri, { useNewUrlParser: true });
     await client.connect();
-    const collection = client.db('db').collection('users');
-    const result = await collection.findOne({ username }, {
-        projection: {
-            _id: 0,
-            username: 1,
-            name: 1,
-            privacy: 1
-        }
+
+    // Get all the comment locations for the session
+    const locCollection = client.db('db').collection('commentLocations');
+    const commentsLoc = await locCollection.find({
+        sessionId: id,
+        path: { $size: 0 }
     });
+
+    // Get the comments themselves
+    const commCollection = client.db('db').collection('comments');
+    const comments = await commentsLoc.map(async meta => {
+        const commentData = await commCollection.findOne({ id: meta.commentId }, { projection: { _id: 0 } });
+        return commentData;
+    });
+
+    // Finally, fetch metadata about the session.
+    const sessCollection = client.db('db').collection('sessions');
+    const session = await sessCollection.findOne({ id }, { projection: { _id: 0 } });
+
+    // Put the results together.
+    const result = {
+        meta: session,
+        comments,
+        success: true
+    };
 
     return result;
 };

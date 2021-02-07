@@ -1,4 +1,5 @@
 import '../sass/index.sass';
+import '@fortawesome/fontawesome-free';
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { HashRouter as Router } from 'react-router-dom';

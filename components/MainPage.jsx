@@ -26,24 +26,34 @@ class MainPage extends React.Component {
         });
         const data = await response.json();
 
-        if (data.success) {this.setState({ session: data.session });}
+        if (data.success) {this.setState({ session: data });}
     }
 
     async componentDidMount() {
-        if (!localStorage.getItem('session')) return;
-        await this.fetchSession(localStorage.getItem('session'));
+        /*
+         * If (!localStorage.getItem('session')) return;
+         *await this.fetchSession(localStorage.getItem('session'));
+         */
+        await this.fetchSession(5);
     }
 
     render() {
-        let body;
-        if (this.state.session !== null) {body = <Discussion />;}
-        else {body = <Start inputFunc={this.fetchSession} />;}
+        // Let body;
+        /*
+         *If (this.state.session !== null) {body = <Discussion />;}
+         *else {body = <Start inputFunc={this.fetchSession} />;}
+         */
+
+        const body = this.state.session ?
+            this.state.session.comments.map((x, i) => <Comment key={i} username={x.username} upvotes={x.upvotes}
+                downvotes={x.downvotes} text={x.text} date={x.date} replies={x.replies} />) :
+            <div></div>;
 
         return (
             <main>
                 <Navbar />
                 {body}
-                <Comment username='user01' upvotes={0} downvotes={0} text='Hey this is a comment!' date={new Date()} />
+
             </main>
         );
     }

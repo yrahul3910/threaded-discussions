@@ -35,7 +35,6 @@ app.use(require('webpack-dev-middleware')(compiler, {
     publicPath: config.output.publicPath
 }));
 
-
 const illegalCharsFormat = /[!@#$%^&*()+\-=[\]{};':"\\|,.<>/?]/;
 
 const logRequest = req => (
@@ -52,6 +51,85 @@ const logRequest = req => (
 app.get('/*', (req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
     res.sendFile(path.join(__dirname, '../src/index.html'));
+});
+
+app.post('/api/session/fetch', async(req, res) => {
+    console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+    const { sessionId } = req.body;
+
+    // Check for empty input
+    if (!sessionId) {
+        console.log(chalk.yellow(`WARN: Empty fields${ req}`));
+        res.end(JSON.stringify({
+            success: false,
+            message: 'Fields cannot be empty'
+        }));
+        return;
+    }
+
+    const results = await dbUtils.getComments(sessionId);
+
+    if (!results.success) {
+        console.log(chalk.red(`ERR: Request to fetch session failed: ${results.error}`));
+        res.end(JSON.stringify({
+            success: false,
+            message: 'Unknown error occurred.'
+        }));
+        return;
+    }
+
+    console.log(chalk.green('INFO: Request successful.'));
+    res.end(JSON.stringify({
+        success: true,
+        meta: results.meta,
+        comments: results.comments
+    }));
+/*
+ * Const data = {
+ * success: true,
+ * data:
+ * [
+ * {
+ * username: 'user01',
+ * upvotes: 5,
+ * downvotes: 2,
+ * text: 'Parent 1',
+ * date: new Date(),
+ * replies: [
+ * {
+ * username: 'user02',
+ * upvotes: 0,
+ * downvotes: 0,
+ * text: 'Child 1',
+ * date: new Date(),
+ * replies: []
+ * },
+ * {
+ * username: 'user03',
+ * upvotes: 3,
+ * downvotes: 1,
+ * text: 'Child 2',
+ * date: new Date(),
+ * replies: [
+ * {
+ * username: 'user04',
+ * upvotes: 3,
+ * downvotes: 5,
+ * text: 'Grandchild 1',
+ * date: new Date(),
+ * replies: []
+ * }
+ * ]
+ * }
+ * ]
+ * }
+ * ]
+ * };
+ *
+ * res.end(JSON.stringify(data));
+ */
 });
 
 /* Authenticates the user. */
