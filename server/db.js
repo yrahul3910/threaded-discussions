@@ -9,6 +9,9 @@ const password = process.env.DB_PASSWORD;
 const hostname = process.env.DB_URL;
 const uri = `mongodb+srv://${user}:${password}@${hostname}/db?retryWrites=true&w=majority`;
 
+const ID_LENGTH = 7;
+const createId = () => Math.random().toString(36).substring(ID_LENGTH);
+
 /**
  * Checks if the user has entered the right set of authentication details.
  * @param {string} username - The username entered
@@ -143,6 +146,119 @@ exports.deleteUser = async username => {
         return { success: result.acknowledged };
     });
 };
+
+
+/**
+ * Adds a comment.
+ * @param {string} sessionId - The session ID
+ * @param {string} comment - The comment text
+ * @param {string} username - The username
+ * @param {string} responseTo - The comment ID it responds to
+ */
+exports.addComment = async(sessionId, comment, username, responseTo) => {
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+    await client.connect();
+
+    const db = client.db('db');
+    const commCollection = db.collection('comments');
+    const locCollection = db.collection('commentLocations');
+    const date = new Date();
+
+    // Verify the session exists.
+    const sessCollection = db.collection('sessions');
+    const sessResult = await sessCollection.findOne({ id: sessionId });
+
+    if (!sessResult) {
+        return {
+            success: false,
+            error: 'Invalid session ID'
+        };
+    }
+
+    if (!responseTo) {
+        /*
+         * This is a top-level comment.
+         * First, add it to the locations collection.
+         */
+        const commentId = createId();
+        await locCollection.insertOne({
+            sessionId,
+            commentId,
+            path: []
+        });
+
+        // Now, add it to the comments collection.
+        await commCollection.insertOne({
+            id: commentId,
+            username,
+            upvotes: 0,
+            downvotes: 0,
+            text: comment,
+            date,
+            replies: []
+        });
+
+        return { success: true };
+    }
+    else {
+        // First, check that replyTo is valid.
+        const commentLoc = await commCollection.findOne({
+            sessionId,
+            commentId: responseTo
+        });
+
+        if (!commentLoc) {
+            return {
+                success: false,
+                error: 'Invalid replyTo'
+            };
+        }
+
+        // Traverse the path.
+        const { path } = commentLoc;
+        const commentId = createId();
+        const topLevel = await commCollection.findOne({ id: path[0] });
+        let currComment = topLevel;
+
+        for (const id of path.slice(1)) {
+            const { replies } = currComment;
+            currComment = replies.filter(x => x.id === id);
+        }
+
+        /*
+         * Use the MongoDB 3.6 $[] operator:
+         * https://stackoverflow.com/a/51596944
+         */
+        await commCollection.update(
+            { _id: topLevel['_id'] },
+            {
+                $push: {
+                    'replies.$[].$[comment_arr].replies': {
+                        id: commentId,
+                        username,
+                        upvotes: 0,
+                        downvotes: 0,
+                        text: comment,
+                        date,
+                        replies: []
+                    }
+                }
+            },
+            { arrayFilters: [{ 'comment_arr.id': responseTo }]}
+        );
+
+        // Finally, update the commentLocations collection.
+        path.push(currComment.id);
+        await locCollection.insertOne({
+            sessionId,
+            commentId,
+            path
+        });
+
+        return { success: true };
+    }
+};
+
 
 /**
  * Fetches a session.

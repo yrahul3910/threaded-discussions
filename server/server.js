@@ -53,6 +53,14 @@ app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, '../src/index.html'));
 });
 
+
+/*
+ * Fetches a session and its comments. Expects a request with
+ * JSON body:
+ * {
+ *     sessionId: string
+ * }
+ */
 app.post('/api/session/fetch', async(req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -86,51 +94,47 @@ app.post('/api/session/fetch', async(req, res) => {
         meta: results.meta,
         comments: results.comments
     }));
-/*
- * Const data = {
- * success: true,
- * data:
- * [
- * {
- * username: 'user01',
- * upvotes: 5,
- * downvotes: 2,
- * text: 'Parent 1',
- * date: new Date(),
- * replies: [
- * {
- * username: 'user02',
- * upvotes: 0,
- * downvotes: 0,
- * text: 'Child 1',
- * date: new Date(),
- * replies: []
- * },
- * {
- * username: 'user03',
- * upvotes: 3,
- * downvotes: 1,
- * text: 'Child 2',
- * date: new Date(),
- * replies: [
- * {
- * username: 'user04',
- * upvotes: 3,
- * downvotes: 5,
- * text: 'Grandchild 1',
- * date: new Date(),
- * replies: []
- * }
- * ]
- * }
- * ]
- * }
- * ]
- * };
- *
- * res.end(JSON.stringify(data));
- */
 });
+
+
+/*
+ * Adds a comment to a session. Expects a request body in JSON:
+ * {
+ *     sessionId: string,
+ *     comment: string,
+ *     user: string,
+ *     responseTo: string
+ * }
+ */
+app.post('/api/session/comment', async(req, res) => {
+    console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+    const { sessionId, comment, user, responseTo } = req.body;
+
+    // Sanitize input
+    if (!sessionId || !comment || !user ||
+        illegalCharsFormat.test(sessionId) ||
+        illegalCharsFormat.test(comment) ||
+        illegalCharsFormat.test(user) ||
+        (responseTo && illegalCharsFormat.test(responseTo))) {
+        console.log(chalk.yellow('WARN: Bad request caught.'));
+        res.end(JSON.stringify({
+            success: false,
+            error: 'Bad parameters.'
+        }));
+        return;
+    }
+
+    const result = await dbUtils.addComment(sessionId, comment, user, responseTo);
+
+    if (!result.success) {
+        console.log(chalk.yellow(`WARN: Adding comment failed: ${result.error}`));
+    }
+
+    res.end(JSON.stringify(result));
+});
+
 
 /* Authenticates the user. */
 app.post('/api/authenticate', (req, res) => {
