@@ -149,6 +149,12 @@ exports.deleteUser = async username => {
 
 
 /**
+ * Creates a new session.
+ * @param {string} title
+ */
+
+
+/**
  * Adds a comment.
  * @param {string} sessionId - The session ID
  * @param {string} comment - The comment text
@@ -278,7 +284,12 @@ exports.getComments = async id => {
     // Get the comments themselves
     const commCollection = client.db('db').collection('comments');
     const comments = await commentsLoc.map(async meta => {
-        const commentData = await commCollection.findOne({ id: meta.commentId }, { projection: { _id: 0 } });
+        const commentData = await commCollection.find({ id: meta.commentId }, {
+            projection: {
+                _id: 0,
+                id: 0,
+            }
+        });
         return commentData;
     });
 

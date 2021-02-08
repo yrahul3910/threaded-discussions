@@ -136,6 +136,28 @@ app.post('/api/session/comment', async(req, res) => {
 });
 
 
+/**
+ * Creates a new session. Expects a request body with JSON:
+ * {
+ *     title: string
+ * }
+ */
+app.post('/api/session/create', (req, res) => {
+    console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+    const { title } = req.body;
+    if (!title ||
+        illegalCharsFormat.test(title)) {
+        console.log(chalk.yellow(`WARN: Empty fields${ req}`));
+        res.end(JSON.stringify({
+            success: false,
+            message: 'Fields cannot be empty'
+        }));
+    }
+});
+
+
 /* Authenticates the user. */
 app.post('/api/authenticate', (req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
