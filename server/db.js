@@ -152,6 +152,24 @@ exports.deleteUser = async username => {
  * Creates a new session.
  * @param {string} title
  */
+exports.createSession = async title => {
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+    await client.connect();
+
+    const db = client.db('db');
+    const sessCollection = db.collection('sessions');
+    const id = createId();
+
+    await sessCollection.insertOne({
+        id,
+        title,
+        createdOn: new Date()
+    });
+    return {
+        success: true,
+        id
+    };
+};
 
 
 /**
@@ -284,12 +302,7 @@ exports.getComments = async id => {
     // Get the comments themselves
     const commCollection = client.db('db').collection('comments');
     const comments = await commentsLoc.map(async meta => {
-        const commentData = await commCollection.find({ id: meta.commentId }, {
-            projection: {
-                _id: 0,
-                id: 0,
-            }
-        });
+        const commentData = await commCollection.findOne({ id: meta.commentId }, { projection: { _id: 0 } });
         return commentData;
     });
 

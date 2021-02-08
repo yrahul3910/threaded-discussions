@@ -8,6 +8,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import webpack from 'webpack';
+import rateLimit from 'express-rate-limit';
 import owasp from 'owasp-password-strength-test';
 import jwt from 'jsonwebtoken';
 
@@ -23,6 +24,11 @@ owasp.config({
     minLength: 8
 });
 
+const limiter = rateLimit({
+    windowMs: 1000 * 60, // 1 minute
+    max: 30
+});
+
 dotenv.config();
 app.use(compression());
 app.use(helmet());
@@ -34,6 +40,7 @@ app.use(require('webpack-dev-middleware')(compiler, {
     noInfo: true,
     publicPath: config.output.publicPath
 }));
+app.use(limiter);
 
 const illegalCharsFormat = /[!@#$%^&*()+\-=[\]{};':"\\|,.<>/?]/;
 
@@ -142,7 +149,7 @@ app.post('/api/session/comment', async(req, res) => {
  *     title: string
  * }
  */
-app.post('/api/session/create', (req, res) => {
+app.post('/api/session/create', async(req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
@@ -154,7 +161,13 @@ app.post('/api/session/create', (req, res) => {
             success: false,
             message: 'Fields cannot be empty'
         }));
+
+        return;
     }
+
+    const response = await dbUtils.createSession(title);
+
+    res.end(JSON.stringify(response));
 });
 
 
