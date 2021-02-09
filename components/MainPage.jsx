@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Navbar from './Navbar.jsx';
 import Discussion from './Discussion.jsx';
 import Start from './Start.jsx';
-import Comment from './Comment.jsx';
 
 class MainPage extends React.Component {
     constructor(props) {
@@ -17,6 +16,21 @@ class MainPage extends React.Component {
         this.fetchSession = this.fetchSession.bind(this);
     }
 
+    async createSession(title) {
+        const response = await fetch('/api/session/create', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            localStorage.setItem('session', data.id);
+            this.setState({ sessionId: data.id });
+        }
+    }
+
     async fetchSession(id) {
         const response = await fetch('/api/session/fetch', {
             method: 'POST',
@@ -26,28 +40,24 @@ class MainPage extends React.Component {
         });
         const data = await response.json();
 
-        if (data.success) {this.setState({ session: data });}
+        if (data.success) {
+            localStorage.setItem('session', id);
+            this.setState({ session: data });
+        }
     }
 
     async componentDidMount() {
-        /*
-         * If (!localStorage.getItem('session')) return;
-         *await this.fetchSession(localStorage.getItem('session'));
-         */
-        await this.fetchSession(5);
+        if (!localStorage.getItem('session')) return;
+
+        await this.fetchSession(localStorage.getItem('session'));
     }
 
     render() {
-        // Let body;
-        /*
-         *If (this.state.session !== null) {body = <Discussion />;}
-         *else {body = <Start inputFunc={this.fetchSession} />;}
-         */
+        let body;
 
-        const body = this.state.session ?
-            this.state.session.comments.map((x, i) => <Comment key={i} username={x.username} upvotes={x.upvotes}
-                downvotes={x.downvotes} text={x.text} date={x.date} replies={x.replies} />) :
-            <div></div>;
+        if (this.state.session !== null) {body = <Discussion />;}
+        else {body = <Start inputFunc={this.fetchSession} />;}
+
 
         return (
             <main>

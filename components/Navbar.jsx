@@ -8,8 +8,8 @@ class Navbar extends React.Component {
     render() {
         return (
             <ul className='nav-sticky'>
-                <li><h3>Discuss</h3></li>
-                <li><h4>Disconnect</h4></li>
+                <li><h2>Discuss</h2></li>
+                <li><h3>Disconnect</h3></li>
             </ul>
         );
     }

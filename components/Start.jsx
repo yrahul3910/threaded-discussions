@@ -6,34 +6,30 @@ class Start extends React.Component {
         super(props);
 
         this.sessionInput = React.createRef();
+        this.titleInput = React.createRef();
     }
 
     render() {
         return (
-            <div style={{
-                display: 'flex',
-                height: '100%',
-                flexDirection: 'column',
-                justifyContent: 'center'
-            }}>
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    margin: '-20px 0 1rem 0'
-                }}>
+            <div className='main-page'>
+                <div className='blue-background'>
+                    <h2>Join a session</h2>
                     <input type="text" placeholder="Session ID" ref={this.sessionInput} />
-                </div>
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'center'
-                }}>
                     <button onClick={() => {this.props.inputFunc(this.sessionInput.current.value);}}>Submit</button>
+                </div>
+                <div>
+                    <h2>Create a session</h2>
+                    <input type="text" placeholder="Session title" ref={this.titleInput} />
+                    <button onClick={() => {this.props.createFunc(this.titleInput.current.value);}}>Start</button>
                 </div>
             </div>
         );
     }
 }
 
-Start.propTypes = { inputFunc: PropTypes.func.isRequired };
+Start.propTypes = {
+    inputFunc: PropTypes.func.isRequired,
+    createFunc: PropTypes.func.isRequired
+};
 
 export default Start;
