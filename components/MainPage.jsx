@@ -55,8 +55,12 @@ class MainPage extends React.Component {
     render() {
         let body;
 
-        if (this.state.session !== null) {body = <Discussion />;}
-        else {body = <Start inputFunc={this.fetchSession} />;}
+        if (this.state.session !== null) {
+            body = <Discussion
+                title={this.state.session.meta.title}
+                comments={this.state.session.comments} />;
+        }
+        else {body = <Start createFunc={this.createSession} inputFunc={this.fetchSession} />;}
 
 
         return (

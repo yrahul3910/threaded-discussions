@@ -8,6 +8,7 @@ const user = process.env.DB_USER;
 const password = process.env.DB_PASSWORD;
 const hostname = process.env.DB_URL;
 const uri = `mongodb+srv://${user}:${password}@${hostname}/db?retryWrites=true&w=majority`;
+console.log(uri);
 
 const ID_LENGTH = 7;
 const createId = () => Math.random().toString(36).substring(ID_LENGTH);
@@ -300,11 +301,16 @@ exports.getComments = async id => {
     });
 
     // Get the comments themselves
-    const commCollection = client.db('db').collection('comments');
-    const comments = await commentsLoc.map(async meta => {
-        const commentData = await commCollection.findOne({ id: meta.commentId }, { projection: { _id: 0 } });
-        return commentData;
-    });
+    let comments;
+    if (commentsLoc.length) {
+        console.log('here');
+        const commCollection = client.db('db').collection('comments');
+        comments = await commentsLoc.map(async meta => {
+            const commentData = await commCollection.findOne({ id: meta.commentId }, { projection: { _id: 0 } });
+            return commentData;
+        });
+    }
+    else {comments = [];}
 
     // Finally, fetch metadata about the session.
     const sessCollection = client.db('db').collection('sessions');

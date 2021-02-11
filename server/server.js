@@ -72,10 +72,10 @@ app.post('/api/session/fetch', async(req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-    const { sessionId } = req.body;
+    const { id } = req.body;
 
     // Check for empty input
-    if (!sessionId) {
+    if (!id) {
         console.log(chalk.yellow(`WARN: Empty fields${ req}`));
         res.end(JSON.stringify({
             success: false,
@@ -84,7 +84,7 @@ app.post('/api/session/fetch', async(req, res) => {
         return;
     }
 
-    const results = await dbUtils.getComments(sessionId);
+    const results = await dbUtils.getComments(id);
 
     if (!results.success) {
         console.log(chalk.red(`ERR: Request to fetch session failed: ${results.error}`));
@@ -96,10 +96,10 @@ app.post('/api/session/fetch', async(req, res) => {
     }
 
     console.log(chalk.green('INFO: Request successful.'));
+    console.log(results);
     res.end(JSON.stringify({
         success: true,
-        meta: results.meta,
-        comments: results.comments
+        ...results
     }));
 });
 
