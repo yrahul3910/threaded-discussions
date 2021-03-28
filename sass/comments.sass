@@ -2,12 +2,18 @@
   background-color: white
   border-left: 7px solid lightgray
   padding: 10px
-  margin-top: 0
+  margin-top: 10
   margin-bottom: 0
   margin-left: 10px
   border-bottom: 1px solid lightgray
   border-top: 1px solid lightgray
 
+  // Style for collapsed comments
+  &.collapsed
+    .comment-text, .comment-footer, .comment-reply
+      display: none
+
+  // Now the regular styles
   .comment-text
     padding: 5px
 
@@ -29,3 +35,24 @@
 
     i
       color: $grey
+      cursor: pointer
+
+.comment-reply
+  padding: 5px
+  margin-left: 10px
+  display: block
+
+  textarea
+    width: 500px
+    height: 100px
+    display: block
+
+  button.reply-button
+    border: 1px solid $wolfpack-red
+    padding: 10px
+    border-radius: 4px
+    margin-top: 10px
+
+  &.collapsed
+    display: none
+    transition: display 1s ease-in-out

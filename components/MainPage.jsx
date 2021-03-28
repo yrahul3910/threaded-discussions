@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Navbar from './Navbar.jsx';
 import Discussion from './Discussion.jsx';
 import Start from './Start.jsx';
+import UsernameGenerator from 'username-generator';
 
 class MainPage extends React.Component {
     constructor(props) {
@@ -10,10 +11,17 @@ class MainPage extends React.Component {
 
         this.state = {
             sessionId: null,
-            session: null
+            session: null,
+            refresh: false
         };
 
         this.fetchSession = this.fetchSession.bind(this);
+        this.createSession = this.createSession.bind(this);
+        this.refreshFunc = this.refreshFunc.bind(this);
+    }
+
+    async refreshFunc() {
+        await this.fetchSession(localStorage.getItem('session'));
     }
 
     async createSession(title) {
@@ -27,6 +35,7 @@ class MainPage extends React.Component {
 
         if (data.success) {
             localStorage.setItem('session', data.id);
+            localStorage.setItem('user', UsernameGenerator.generateUsername('-'));
             this.setState({ sessionId: data.id });
         }
     }
@@ -58,7 +67,8 @@ class MainPage extends React.Component {
         if (this.state.session !== null) {
             body = <Discussion
                 title={this.state.session.meta.title}
-                comments={this.state.session.comments} />;
+                comments={this.state.session.comments}
+                refreshFunc={this.refreshFunc} />;
         }
         else {body = <Start createFunc={this.createSession} inputFunc={this.fetchSession} />;}
 

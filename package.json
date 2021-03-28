@@ -20,6 +20,7 @@
     "@fortawesome/fontawesome-free": "^5.15.2",
     "core-js": "^3.6.5",
     "express-rate-limit": "^5.2.5",
+    "js-notifications": "^1.2.0",
     "jsdom-global": "3.0.2",
     "moment": "^2.29.1",
     "mongodb": "^3.6.1",
@@ -28,7 +29,8 @@
     "react-alert-template-basic": "^1.0.0",
     "react-avatar-edit": "^0.8.3",
     "react-switch": "^5.0.1",
-    "regenerator-runtime": "^0.13.7"
+    "regenerator-runtime": "^0.13.7",
+    "username-generator": "^1.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.5",

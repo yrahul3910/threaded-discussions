@@ -1,6 +1,5 @@
 import express from 'express';
 import path from 'path';
-import open from 'open';
 import compression from 'compression';
 import dotenv from 'dotenv';
 import chalk from 'chalk';
@@ -42,7 +41,7 @@ app.use(require('webpack-dev-middleware')(compiler, {
 }));
 app.use(limiter);
 
-const illegalCharsFormat = /[!@#$%^&*()+\-=[\]{};':"\\|,.<>/?]/;
+const illegalCharsFormat = /[!@#$%^&*()+=[\]{};':"\\|,.<>/?]/;
 
 const logRequest = req => (
     `REQUEST at ${
@@ -96,7 +95,6 @@ app.post('/api/session/fetch', async(req, res) => {
     }
 
     console.log(chalk.green('INFO: Request successful.'));
-    console.log(results);
     res.end(JSON.stringify({
         success: true,
         ...results
@@ -341,6 +339,5 @@ app.put('/api/authenticate', async(req, res) => {
 
 app.listen(port, err => {
     if (err) throw err;
-    open(`http://localhost:${ port}`);
     console.log(chalk.green(`Server is running at port ${ port}`));
 });
