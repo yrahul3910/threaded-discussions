@@ -120,7 +120,6 @@ app.post('/api/session/comment', async(req, res) => {
     // Sanitize input
     if (!sessionId || !comment || !user ||
         illegalCharsFormat.test(sessionId) ||
-        illegalCharsFormat.test(comment) ||
         illegalCharsFormat.test(user) ||
         (responseTo && illegalCharsFormat.test(responseTo))) {
         console.log(chalk.yellow('WARN: Bad request caught.'));

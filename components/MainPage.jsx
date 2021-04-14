@@ -51,6 +51,7 @@ class MainPage extends React.Component {
 
         if (data.success) {
             localStorage.setItem('session', id);
+            localStorage.setItem('user', UsernameGenerator.generateUsername('-'));
             this.setState({ session: data });
         }
     }

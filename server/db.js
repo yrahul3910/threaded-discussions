@@ -226,7 +226,7 @@ exports.addComment = async(sessionId, comment, username, responseTo) => {
     }
     else {
         // First, check that replyTo is valid.
-        const commentLoc = await commCollection.findOne({
+        const commentLoc = await locCollection.findOne({
             sessionId,
             commentId: responseTo
         });
@@ -240,39 +240,63 @@ exports.addComment = async(sessionId, comment, username, responseTo) => {
 
         // Traverse the path.
         const { path } = commentLoc;
-        const commentId = createId();
-        const topLevel = await commCollection.findOne({ id: path[0] });
-        let currComment = topLevel;
 
-        for (const id of path.slice(1)) {
-            const { replies } = currComment;
-            currComment = replies.filter(x => x.id === id);
+        const commentId = createId();
+
+        if (path.length) {
+            const topLevel = await commCollection.findOne({ id: path[0] });
+            let currComment = topLevel;
+
+            for (const id of path.slice(1)) {
+                const { replies } = currComment;
+                currComment = replies.filter(x => x.id === id);
+            }
+
+            /*
+             * Use the MongoDB 3.6 $[] operator:
+             * https://stackoverflow.com/a/51596944
+             */
+            await commCollection.update(
+                { _id: topLevel['_id'] },
+                {
+                    $push: {
+                        'replies.$[].$[comment_arr].replies': {
+                            id: commentId,
+                            username,
+                            upvotes: 0,
+                            downvotes: 0,
+                            text: comment,
+                            date,
+                            replies: []
+                        }
+                    }
+                },
+                { arrayFilters: [{ 'comment_arr.id': responseTo }]}
+            );
+
+            // Finally, update the commentLocations collection.
+            path.push(currComment.id);
+        }
+        else {
+            path.push(responseTo);
+
+            // Now add the reply in the comments collection
+            const curReply = {
+                id: commentId,
+                username,
+                upvotes: 0,
+                downvotes: 0,
+                text: comment,
+                date,
+                replies: []
+            };
+
+            await commCollection.update(
+                { id: responseTo },
+                { $push: { replies: curReply } }
+            );
         }
 
-        /*
-         * Use the MongoDB 3.6 $[] operator:
-         * https://stackoverflow.com/a/51596944
-         */
-        await commCollection.update(
-            { _id: topLevel['_id'] },
-            {
-                $push: {
-                    'replies.$[].$[comment_arr].replies': {
-                        id: commentId,
-                        username,
-                        upvotes: 0,
-                        downvotes: 0,
-                        text: comment,
-                        date,
-                        replies: []
-                    }
-                }
-            },
-            { arrayFilters: [{ 'comment_arr.id': responseTo }]}
-        );
-
-        // Finally, update the commentLocations collection.
-        path.push(currComment.id);
         await locCollection.insertOne({
             sessionId,
             commentId,

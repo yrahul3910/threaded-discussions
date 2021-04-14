@@ -49,6 +49,8 @@ class Discussion extends React.Component {
     render() {
         const body = this.props.comments.map(
             (x, i) => <Comment key={i}
+                id={x.id}
+                refreshFunc={this.props.refreshFunc}
                 username={x.username}
                 upvotes={x.upvotes}
                 text={x.text}
