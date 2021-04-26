@@ -260,7 +260,7 @@ exports.addComment = async(sessionId, comment, username, responseTo) => {
                 { _id: topLevel['_id'] },
                 {
                     $push: {
-                        'replies.$[].$[comment_arr].replies': {
+                        'replies.$[commentArr].replies': {
                             id: commentId,
                             username,
                             upvotes: 0,
@@ -271,7 +271,7 @@ exports.addComment = async(sessionId, comment, username, responseTo) => {
                         }
                     }
                 },
-                { arrayFilters: [{ 'comment_arr.id': responseTo }]}
+                { arrayFilters: [{ 'commentArr.id': responseTo }]}
             );
 
             // Finally, update the commentLocations collection.

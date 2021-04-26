@@ -123,7 +123,7 @@ Comment.propTypes = {
     upvotes: PropTypes.number.isRequired,
     downvotes: PropTypes.number,
     username: PropTypes.string.isRequired,
-    date: PropTypes.instanceOf(Date),
+    date: PropTypes.string.isRequired,
     replies: PropTypes.array.isRequired
 };
 
