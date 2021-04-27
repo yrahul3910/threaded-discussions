@@ -60,6 +60,10 @@ class Discussion extends React.Component {
         return (
             <Fragment>
                 <h1 style={{ padding: '20px' }}>{this.props.title}</h1>
+                <h3 style={{
+                    color: 'grey',
+                    paddingLeft: '20px'
+                }}>{localStorage.getItem('session')}</h3>
                 {body}
                 <div className='comment-reply'>
                     <textarea ref={this.replyField}
