@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import Comment from './Comment.jsx';
-import ToastManager from 'js-notifications';
+import Toastify from 'toastify-js';
 
 class Discussion extends React.Component {
     constructor(props) {
@@ -27,20 +27,25 @@ class Discussion extends React.Component {
             })
         });
         const resp = await req.json();
-        const toastManager = new ToastManager();
         if (!resp.success) {
-            toastManager.notify({
-                className: 'toast--fail',
-                title: 'Reply failed.',
-                content: 'Failed to submit reply'
-            });
+            Toastify({
+                text: 'Failed to submit reply.',
+                duration: 3000,
+                gravity: 'bottom',
+                position: 'right',
+                backgroundColor: 'rgb(204, 0, 0)',
+                color: 'white'
+            }).showToast();
         }
         else {
-            toastManager.notify({
-                className: 'toast--success',
-                title: 'Reply success',
-                content: 'Your comment has been posted.'
-            });
+            Toastify({
+                text: 'Reply added.',
+                duration: 3000,
+                gravity: 'bottom',
+                position: 'right',
+                backgroundColor: 'rgb(204, 0, 0)',
+                color: 'white'
+            }).showToast();
         }
 
         this.props.refreshFunc();

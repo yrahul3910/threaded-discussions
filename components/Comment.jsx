@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import ToastManager from 'js-notifications';
+import Toastify from 'toastify-js';
 
 class Comment extends React.Component {
     constructor(props) {
@@ -33,20 +33,25 @@ class Comment extends React.Component {
             })
         });
         const resp = await req.json();
-        const toastManager = new ToastManager();
         if (!resp.success) {
-            toastManager.notify({
-                className: 'toast--fail',
-                title: 'Reply failed.',
-                content: 'Failed to submit reply'
-            });
+            Toastify({
+                text: 'Failed to submit reply.',
+                duration: 3000,
+                gravity: 'bottom',
+                position: 'right',
+                backgroundColor: 'rgb(204, 0, 0)',
+                color: 'white'
+            }).showToast();
         }
         else {
-            toastManager.notify({
-                className: 'toast--success',
-                title: 'Reply success',
-                content: 'Your comment has been posted.'
-            });
+            Toastify({
+                text: 'Failed to submit reply.',
+                duration: 3000,
+                gravity: 'bottom',
+                position: 'right',
+                backgroundColor: 'rgb(204, 0, 0)',
+                color: 'white'
+            }).showToast();
         }
 
         this.props.refreshFunc();
@@ -61,7 +66,6 @@ class Comment extends React.Component {
     }
 
     openReply() {
-        console.log('Hello');
         const el = this.text.current;
         if (el.classList.contains('collapsed')) {el.classList.remove('collapsed');}
     }
