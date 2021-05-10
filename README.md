@@ -63,3 +63,13 @@ However, to add a reply, we need an efficient method to search the parent commen
 
 The `path` attribute stores an array of comment IDs to follow in the comments database.
 
+A `votes` collection stores user votes per comment.
+
+```{json}
+{
+    commentId: string,
+    username: string,
+    vote: +1 / -1
+}
+```
+

@@ -12,10 +12,15 @@ class Comment extends React.Component {
         this.replyBtn = React.createRef();
         this.text = React.createRef();
         this.reply = React.createRef();
+        this.upvoteBtn = React.createRef();
+        this.downvoteBtn = React.createRef();
+
+        this.state = { vote: 0 };
 
         this.toggleCollapsed = this.toggleCollapsed.bind(this);
         this.openReply = this.openReply.bind(this);
         this.submitReply = this.submitReply.bind(this);
+        this.sendVote = this.sendVote.bind(this);
     }
 
     async submitReply() {
@@ -70,6 +75,35 @@ class Comment extends React.Component {
         if (el.classList.contains('collapsed')) {el.classList.remove('collapsed');}
     }
 
+    async sendVote(vote) {
+        // In case we need to revert
+        const previousState = this.state.vote;
+
+        // First, update the state
+        this.setState({
+            vote: this.state.vote === vote ?
+                0 :
+                vote
+        });
+
+        // Next, send a request
+        const req = await fetch('/api/comment/vote', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                vote,
+                commentId: this.props.id,
+                userId: localStorage.getItem('user')
+            })
+        });
+        const res = await req.json();
+
+        if (!res.success) {
+            this.setState({ vote: previousState });
+        }
+    }
+
     render() {
         const child = this.props.replies.map((x, i) => <Comment key={i}
             id={x.id}
@@ -102,8 +136,12 @@ class Comment extends React.Component {
                     </div>
                     <p className='comment-text'>{this.props.text}</p>
                     <div className='comment-footer'>
-                        <i className='fas fa-arrow-up'></i>
-                        <i className='fas fa-arrow-down'></i>
+                        <i onClick={() => {this.sendVote(1);}}
+                            ref={this.upvoteBtn}
+                            className='fas fa-arrow-up'></i>
+                        <i onClick={() => {this.sendVote(-1);}}
+                            ref={this.downvoteBtn}
+                            className='fas fa-arrow-down'></i>
                         <a ref={this.replyBtn} onClick={this.openReply}>
                             <i className='fas fa-reply'></i>
                         </a>

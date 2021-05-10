@@ -168,6 +168,34 @@ app.post('/api/session/create', async(req, res) => {
 });
 
 
+/**
+ * Updates the vote on a comment. Expects a request with a body JSON
+ * {
+ *     vote: +1/-1,
+ *     commentId: string,
+ *     userId: string
+ * }
+ */
+app.post('/api/comment/vote', async(req, res) => {
+    console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    const { vote, commentId, userId } = req.body;
+
+    if ((vote !== 1 && vote !== -1) ||
+        illegalCharsFormat.test(commentId) ||
+        illegalCharsFormat.test(userId)) {
+        console.log(chalk.yellow('WARN: Invalid params passed.'));
+        res.end(JSON.stringify({ success: false }));
+        return;
+    }
+
+    const result = await dbUtils.updateVote(userId, commentId, vote);
+    if (result.success) {console.log(chalk.green('Successful request!'));}
+
+    res.end(JSON.stringify(result));
+});
+
+
 /* Authenticates the user. */
 app.post('/api/authenticate', (req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));

@@ -309,6 +309,80 @@ exports.addComment = async(sessionId, comment, username, responseTo) => {
 
 
 /**
+ * Updates the comment vote.
+ *
+ * @param {string} userId - The username of the person voting
+ * @param {string commentId - The comment ID
+ * @param {Number} vote - The vote
+ */
+exports.updateVote = async(username, commentId, vote) => {
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+    await client.connect();
+
+    const votesCollection = client.db('db').collection('votes');
+    const commCollection = client.db('db').collection('comments');
+
+    // First, check if comment-user pair exists.
+    const voteDoc = await votesCollection.findOne({
+        commentId,
+        username
+    });
+
+    if (!voteDoc) {
+        // Create it
+        await votesCollection.insertOne({
+            commentId,
+            username,
+            vote
+        });
+
+        // Update the comments collection
+        if (vote === 1) {await commCollection.updateOne({ id: commentId }, { $inc: { upvotes: 1 } });}
+        else {await commCollection.updateOne({ id: commentId }, { $inc: { downvotes: 1 } });}
+
+        return { success: true };
+    }
+
+    // If the vote is the same, delete the document.
+    if (voteDoc.vote === vote) {
+        await votesCollection.deleteOne(voteDoc);
+
+        // Update the comments collection
+        if (vote === 1) {await commCollection.updateOne({ id: commentId }, { $inc: { upvotes: -1 } });}
+        else {await commCollection.updateOne({ id: commentId }, { $inc: { downvotes: -1 } });}
+
+        return { success: true };
+    }
+
+    // The other case, you update the doc.
+    await votesCollection.updateOne({
+        commentId,
+        username
+    }, { $set: { vote } });
+
+    // Update the comments doc
+    if (vote === 1) {
+        await commCollection.updateOne({ id: commentId }, {
+            $inc: {
+                upvotes: 1,
+                downvotes: -1
+            }
+        });
+    }
+    else {
+        await commCollection.updateOne({ id: commentId }, {
+            $inc: {
+                upvotes: -1,
+                downvotes: 1
+            }
+        });
+    }
+
+    return { success: true };
+};
+
+
+/**
  * Fetches a session.
  * @param {string} id - The session ID
  */
