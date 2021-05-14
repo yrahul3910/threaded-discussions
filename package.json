@@ -13,6 +13,7 @@
     "pretest-server": "npm run server &",
     "test-server": "sleep 10 && mocha --reporter progress test/setup.js test/**/*.test.js",
     "posttest-server": "killall node",
+    "test": "mocha --require @babel/register --reporter progress components/*.test.js",
     "clean-dist": "rimraf ./dist && mkdir dist"
   },
   "author": "Rahul Yedida",

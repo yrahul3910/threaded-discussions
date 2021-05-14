@@ -1,8 +1,7 @@
 import React from 'react';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { render } from '@testing-library/react';
-import Main from '../components/Main';
-import '@testing-library/jest-dom';
+import App from '../components/App';
 
 const setup = (initialPath = '/') => {
     /*
@@ -12,7 +11,7 @@ const setup = (initialPath = '/') => {
     let history;
     render(
         <MemoryRouter initialEntries={[initialPath]}>
-            <Main />
+            <App />
             <Route
                 path="*"
                 render={(props) => {

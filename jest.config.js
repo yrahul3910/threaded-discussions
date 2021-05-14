@@ -1,9 +1,7 @@
 const config = {
     verbose: true,
-    setupFilesAfterEnv: ['./src/componentTestUtils.js']
+    setupFilesAfterEnv: ['./src/componentTestUtils.js'],
+    testEnvironment: "jsdom"
 };
 
 module.exports = config;
-
-// Or async function
-module.exports = async() => ({ verbose: true, });
