@@ -5,12 +5,15 @@
         "node": true,
         "mocha": true
     },
+    "plugins": [
+        "jest-dom"
+    ],
     "extends": [
     "eslint:recommended",
     "plugin:react/recommended"
   ],
     "parserOptions": {
-        "ecmaVersion": 2018,
+        "ecmaVersion": 2019,
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
             "jsx": true
@@ -19,7 +22,6 @@
     },
     "rules": {
         "indent": ["error", 4],
-        "linebreak-style": ["error", "unix"],
         "quotes": ["error", "single"],
         "semi": ["error", "always"],
         "no-console": 0,
