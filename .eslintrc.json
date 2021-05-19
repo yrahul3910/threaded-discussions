@@ -1,15 +1,15 @@
 {
     "root": true,
+    "plugins": [
+        "jest-dom",
+        "jest"
+    ],
     "env": {
         "browser": true,
         "node": true,
         "mocha": true,
         "jest/globals": true
     },
-    "plugins": [
-        "jest-dom",
-        "jest"
-    ],
     "extends": [
     "eslint:recommended",
     "plugin:react/recommended"

@@ -1,8 +1,10 @@
 import { screen } from '@testing-library/react';
 import setup from '../src/componentTestUtils';
 
-it('renders correctly', () => {
-    setup('/');
-    const link = screen.getByText('Discuss');
-    expect(link).toBeTruthy();
+describe('renders correctly', () => {
+    it('displays title', () => {
+        setup('/');
+        const link = screen.getByText('Discuss');
+        expect(link).toBeTruthy();
+    });
 });
