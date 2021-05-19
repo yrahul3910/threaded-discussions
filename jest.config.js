@@ -1,6 +1,6 @@
 const config = {
     verbose: true,
-    setupFilesAfterEnv: ['./src/componentTestUtils.js'],
+    setupFilesAfterEnv: ['<rootDir>/src/componentTestUtils.js'],
     testEnvironment: "jsdom"
 };
 
