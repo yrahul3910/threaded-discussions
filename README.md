@@ -1,5 +1,8 @@
 # Threaded Messaging Tool
 
+[![ESLint](https://github.com/yrahul3910/threaded-discussions/actions/workflows/lint.yml/badge.svg)](https://github.com/yrahul3910/threaded-discussions/actions/workflows/lint.yml)
+[![Test Suite](https://github.com/yrahul3910/threaded-discussions/actions/workflows/ci.yml/badge.svg)](https://github.com/yrahul3910/threaded-discussions/actions/workflows/ci.yml)
+
 This is meant as a supplement to programs like Zoom, to provide more organized messaging between attendees.
 
 ## Goals
