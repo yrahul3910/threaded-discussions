@@ -1,11 +1,13 @@
 {
     "root": true,
     "plugins": [
-        "jest-dom"
+        "jest-dom",
+        "jest"
     ],
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+        "plugin:jest/recommended"
     ],
     "env": {
         "browser": true,

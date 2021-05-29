@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Navbar from './Navbar.jsx';
 import Discussion from './Discussion.jsx';
 import Start from './Start.jsx';
+import Footer from './Footer.jsx';
 import UsernameGenerator from 'username-generator';
 
 class MainPage extends React.Component {
@@ -76,9 +77,11 @@ class MainPage extends React.Component {
 
         return (
             <main>
-                <Navbar />
-                {body}
-
+                <div>
+                    <Navbar />
+                    {body}
+                </div>
+                <Footer />
             </main>
         );
     }
