@@ -76,3 +76,11 @@ A `votes` collection stores user votes per comment.
 }
 ```
 
+Finally, the `sessAuth` collection stores session IDs with hashed passwords.
+
+```{json}
+{
+    id: string,
+    pwd: string
+}
+```

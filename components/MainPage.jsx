@@ -25,28 +25,37 @@ class MainPage extends React.Component {
         await this.fetchSession(localStorage.getItem('session'));
     }
 
-    async createSession(title) {
+    async createSession(title, pwd) {
         const response = await fetch('/api/session/create', {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title })
+            body: JSON.stringify({
+                title,
+                pwd
+            })
         });
         const data = await response.json();
 
         if (data.success) {
             localStorage.setItem('session', data.id);
             localStorage.setItem('user', UsernameGenerator.generateUsername('-'));
-            this.setState({ sessionId: data.id });
+            this.setState({
+                sessionId: data.id,
+                pwd
+            });
         }
     }
 
-    async fetchSession(id) {
+    async fetchSession(id, pwd) {
         const response = await fetch('/api/session/fetch', {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
+            body: JSON.stringify({
+                id,
+                pwd
+            })
         });
         const data = await response.json();
 

@@ -71,11 +71,11 @@ app.post('/api/session/fetch', async(req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-    const { id } = req.body;
+    const { id, pwd } = req.body;
 
     // Check for empty input
-    if (!id) {
-        console.log(chalk.yellow(`WARN: Empty fields${ req}`));
+    if (!id || !pwd) {
+        console.log(chalk.yellow(`WARN: Empty fields${ req }`));
         res.end(JSON.stringify({
             success: false,
             message: 'Fields cannot be empty'
@@ -83,14 +83,11 @@ app.post('/api/session/fetch', async(req, res) => {
         return;
     }
 
-    const results = await dbUtils.getComments(id);
+    const results = await dbUtils.getComments(id, pwd);
 
     if (!results.success) {
-        console.log(chalk.red(`ERR: Request to fetch session failed: ${results.error}`));
-        res.end(JSON.stringify({
-            success: false,
-            message: 'Unknown error occurred.'
-        }));
+        console.log(chalk.red(`ERR: Request to fetch session failed: ${results.message}`));
+        res.end(JSON.stringify(results));
         return;
     }
 
@@ -125,7 +122,7 @@ app.post('/api/session/comment', async(req, res) => {
         console.log(chalk.yellow('WARN: Bad request caught.'));
         res.end(JSON.stringify({
             success: false,
-            error: 'Bad parameters.'
+            message: 'Bad parameters.'
         }));
         return;
     }
@@ -133,7 +130,7 @@ app.post('/api/session/comment', async(req, res) => {
     const result = await dbUtils.addComment(sessionId, comment, user, responseTo);
 
     if (!result.success) {
-        console.log(chalk.yellow(`WARN: Adding comment failed: ${result.error}`));
+        console.log(chalk.yellow(`WARN: Adding comment failed: ${result.message}`));
     }
 
     res.end(JSON.stringify(result));
@@ -150,10 +147,10 @@ app.post('/api/session/create', async(req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-    const { title } = req.body;
-    if (!title ||
+    const { title, pwd } = req.body;
+    if (!title || !pwd ||
         illegalCharsFormat.test(title)) {
-        console.log(chalk.yellow(`WARN: Empty fields${ req}`));
+        console.log(chalk.yellow(`WARN: Empty fields${ req }`));
         res.end(JSON.stringify({
             success: false,
             message: 'Fields cannot be empty'
@@ -162,7 +159,7 @@ app.post('/api/session/create', async(req, res) => {
         return;
     }
 
-    const response = await dbUtils.createSession(title);
+    const response = await dbUtils.createSession(title, pwd);
 
     res.end(JSON.stringify(response));
 });
