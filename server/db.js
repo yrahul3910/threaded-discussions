@@ -99,7 +99,7 @@ exports.createSession = async(title, pwd) => {
         createdOn: new Date()
     });
 
-    const hashedPwd = await bcrypt.hash(pwd);
+    const hashedPwd = await bcrypt.hash(pwd, 10);
 
     await authCollection.insertOne({
         id,
@@ -335,13 +335,13 @@ exports.getComments = async(id, pwd) => {
 
     // Check the password
     const authCollection = db.collection('sessAuth');
-    const hashedPwd = authCollection.findOne({ id });
+    const hashedPwd = await authCollection.findOne({ id });
 
     if (!hashedPwd) {
         return { success: false };
     }
 
-    const pwdCheck = await bcrypt.compare(pwd, hashedPwd);
+    const pwdCheck = await bcrypt.compare(pwd, hashedPwd.pwd);
     if (!pwdCheck) {
         return {
             success: false,

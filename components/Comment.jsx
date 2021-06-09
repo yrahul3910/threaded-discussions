@@ -60,7 +60,8 @@ class Comment extends React.Component {
         }
 
         this.props.refreshFunc();
-        this.toggleCollapsed();
+
+        this.reply.current.value = '';
     }
 
     toggleCollapsed() {
@@ -165,7 +166,7 @@ Comment.propTypes = {
     upvotes: PropTypes.number.isRequired,
     downvotes: PropTypes.number,
     username: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
+    date: PropTypes.instanceOf(Date),
     replies: PropTypes.array.isRequired
 };
 

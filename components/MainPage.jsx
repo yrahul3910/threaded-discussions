@@ -22,7 +22,7 @@ class MainPage extends React.Component {
     }
 
     async refreshFunc() {
-        await this.fetchSession(localStorage.getItem('session'));
+        await this.fetchSession(localStorage.getItem('session'), 'token', localStorage.getItem('token'));
     }
 
     async createSession(title, pwd) {
@@ -37,23 +37,25 @@ class MainPage extends React.Component {
         });
         const data = await response.json();
 
-        if (data.success) {
-            localStorage.setItem('session', data.id);
+        if (data.response.success) {
+            localStorage.setItem('session', data.response.id);
+            localStorage.setItem('token', data.token);
             localStorage.setItem('user', UsernameGenerator.generateUsername('-'));
             this.setState({
-                sessionId: data.id,
+                sessionId: data.response.id,
                 pwd
             });
         }
     }
 
-    async fetchSession(id, pwd) {
+    async fetchSession(id, authMode, pwd) {
         const response = await fetch('/api/session/fetch', {
             method: 'POST',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 id,
+                authMode,
                 pwd
             })
         });
@@ -62,6 +64,7 @@ class MainPage extends React.Component {
         if (data.success) {
             localStorage.setItem('session', id);
             localStorage.setItem('user', UsernameGenerator.generateUsername('-'));
+            localStorage.setItem('token', data.token);
             this.setState({ session: data });
         }
     }
@@ -69,7 +72,7 @@ class MainPage extends React.Component {
     async componentDidMount() {
         if (!localStorage.getItem('session')) return;
 
-        await this.fetchSession(localStorage.getItem('session'));
+        await this.fetchSession(localStorage.getItem('session'), 'token', localStorage.getItem('token'));
     }
 
     render() {

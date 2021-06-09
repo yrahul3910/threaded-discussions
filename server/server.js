@@ -71,16 +71,23 @@ app.post('/api/session/fetch', async(req, res) => {
     console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
     res.writeHead(200, { 'Content-Type': 'application/json' });
 
-    const { id, pwd } = req.body;
+    const { id, authMode } = req.body;
+    let { pwd } = req.body;
 
     // Check for empty input
     if (!id || !pwd) {
-        console.log(chalk.yellow(`WARN: Empty fields${ req }`));
+        console.log(chalk.yellow(`WARN: Empty fields${ JSON.stringify(req.body) }`));
         res.end(JSON.stringify({
             success: false,
             message: 'Fields cannot be empty'
         }));
         return;
+    }
+
+    if (authMode === 'token') {
+        pwd = await jwt.verify(pwd, process.env.SESSION_SECRET);
+        ({ pwd } = pwd);
+        console.log(pwd);
     }
 
     const results = await dbUtils.getComments(id, pwd);
@@ -91,9 +98,15 @@ app.post('/api/session/fetch', async(req, res) => {
         return;
     }
 
+    const user = {
+        id: results.id,
+        pwd
+    };
+    const token = jwt.sign(user, process.env.SESSION_SECRET, { expiresIn: '3 days' });
     console.log(chalk.green('INFO: Request successful.'));
     res.end(JSON.stringify({
         success: true,
+        token,
         ...results
     }));
 });
@@ -159,9 +172,13 @@ app.post('/api/session/create', async(req, res) => {
         return;
     }
 
+    const token = jwt.sign(req.body, process.env.SESSION_SECRET, { expiresIn: '3 days' });
     const response = await dbUtils.createSession(title, pwd);
 
-    res.end(JSON.stringify(response));
+    res.end(JSON.stringify({
+        response,
+        token
+    }));
 });
 
 
@@ -201,7 +218,7 @@ app.post('/api/authenticate', (req, res) => {
 
     // Check for empty strings.
     if (!username || !password) {
-        console.log(chalk.yellow(`WARN: Empty fields${ req}`));
+        console.log(chalk.yellow(`WARN: Empty fields${JSON.stringify(req)}`));
         res.end(JSON.stringify({
             success: false,
             message: 'Fields cannot be empty'
