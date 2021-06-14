@@ -216,7 +216,7 @@ exports.addComment = async(sessionId, comment, username, responseTo) => {
             );
 
             // Finally, update the commentLocations collection.
-            path.push(currComment.id);
+            path.push(responseTo);
         }
         else {
             path.push(responseTo);
