@@ -324,6 +324,27 @@ exports.updateVote = async(username, commentId, vote) => {
 
 
 /**
+ * Gets the upvotes and downvotes for a given comment.
+ * @param {String} id - the comment id
+ */
+exports.getVotes = async id => {
+    const client = new MongoClient(uri, { useNewUrlParser: true });
+    await client.connect();
+
+    const db = client.db('db');
+    const votesCollection = db.collection('votes');
+
+    const documents = await votesCollection.find({ commentId: id }).toArray();
+    if (!documents) return null;
+    if (!documents.length) return [0, 0];
+
+    const upvotes = documents.filter(x => x.vote === 1).length;
+    const downvotes = documents.filter(x => x.vote === -1).length;
+
+    return [upvotes, downvotes];
+};
+
+/**
  * Fetches a session.
  * @param {string} id - The session ID
  */
@@ -354,15 +375,17 @@ exports.getComments = async(id, pwd) => {
     const commentsLoc = await locCollection.find({
         sessionId: id,
         path: { $size: 0 }
-    });
+    }).toArray();
 
     // Get the comments themselves
     let comments = [];  // eslint-disable-line
-    const commentCount = await commentsLoc.count();
+    const commentCount = commentsLoc.length;
     if (commentCount > 0) {
         const commCollection = db.collection('comments');
         await commentsLoc.forEach(async meta => {
             const commentData = await commCollection.findOne({ id: meta.commentId }, { projection: { _id: 0 } });
+
+            // Now, calculate the votes for each comment.
             comments.push(commentData);
         });
     }

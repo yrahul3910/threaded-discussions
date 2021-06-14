@@ -19,7 +19,10 @@ class Start extends React.Component {
                     <input type="text" placeholder="Session ID" ref={this.sessionInput} />
                     <input type="password" placeholder="Password" ref={this.joinPassword} />
                     <button onClick={() => {
-                        this.props.inputFunc(this.sessionInput.current.value, this.joinPassword.current.value);
+                        this.props.inputFunc(
+                            this.sessionInput.current.value,
+                            'password',
+                            this.joinPassword.current.value);
                     }}>Submit</button>
                 </div>
                 <div>

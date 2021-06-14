@@ -15,7 +15,10 @@ class Comment extends React.Component {
         this.upvoteBtn = React.createRef();
         this.downvoteBtn = React.createRef();
 
-        this.state = { vote: 0 };
+        this.state = {
+            userVote: 0,
+            votes: 0
+        };
 
         this.toggleCollapsed = this.toggleCollapsed.bind(this);
         this.openReply = this.openReply.bind(this);
@@ -64,6 +67,18 @@ class Comment extends React.Component {
         this.reply.current.value = '';
     }
 
+    async componentDidMount() {
+        const req = await fetch('/api/comment/votes', {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ commentId: this.props.id })
+        });
+
+        const res = await req.json();
+        this.setState({ votes: res.upvotes - res.downvotes });
+    }
+
     toggleCollapsed() {
         this.parent.current.classList.toggle('collapsed');
 
@@ -78,11 +93,11 @@ class Comment extends React.Component {
 
     async sendVote(vote) {
         // In case we need to revert
-        const previousState = this.state.vote;
+        const previousState = this.state.userVote;
 
         // First, update the state
         this.setState({
-            vote: this.state.vote === vote ?
+            vote: this.state.userVote === vote ?
                 0 :
                 vote
         });
@@ -127,9 +142,7 @@ class Comment extends React.Component {
                             {this.props.username}
                         </span>
                         <span className='votes'>
-                            {this.props.downvotes ?
-                                this.props.upvotes - this.props.downvotes :
-                                this.props.upvotes}
+                            {this.state.votes}
                         </span>
                         <span className='date'>
                             {moment(this.props.date).fromNow()}
@@ -161,12 +174,10 @@ class Comment extends React.Component {
 
 Comment.propTypes = {
     text: PropTypes.string.isRequired,
-    id: PropTypes.string,
+    id: PropTypes.string.isRequired,
     refreshFunc: PropTypes.func.isRequired,
-    upvotes: PropTypes.number.isRequired,
-    downvotes: PropTypes.number,
     username: PropTypes.string.isRequired,
-    date: PropTypes.instanceOf(Date),
+    date: PropTypes.string.isRequired,
     replies: PropTypes.array.isRequired
 };
 

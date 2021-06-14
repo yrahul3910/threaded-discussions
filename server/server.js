@@ -87,7 +87,6 @@ app.post('/api/session/fetch', async(req, res) => {
     if (authMode === 'token') {
         pwd = await jwt.verify(pwd, process.env.SESSION_SECRET);
         ({ pwd } = pwd);
-        console.log(pwd);
     }
 
     const results = await dbUtils.getComments(id, pwd);
@@ -108,6 +107,28 @@ app.post('/api/session/fetch', async(req, res) => {
         success: true,
         token,
         ...results
+    }));
+});
+
+
+app.post('/api/comment/votes', async(req, res) => {
+    console.log(chalk.gray(`INFO: ${ logRequest(req)}`));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+
+    const { commentId } = req.body;
+    if (!commentId || illegalCharsFormat.test(commentId)) {
+        console.log(chalk.yellow('WARN: Bad request caught.'));
+        res.end(JSON.stringify({
+            success: false,
+            message: 'Bad parameters.'
+        }));
+        return;
+    }
+
+    const result = await dbUtils.getVotes(commentId);
+    res.end(JSON.stringify({
+        upvotes: result[0],
+        downvotes: result[1]
     }));
 });
 

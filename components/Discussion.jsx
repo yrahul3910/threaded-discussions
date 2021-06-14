@@ -57,9 +57,8 @@ class Discussion extends React.Component {
                 id={x.id}
                 refreshFunc={this.props.refreshFunc}
                 username={x.username}
-                upvotes={x.upvotes}
                 text={x.text}
-                date={new Date(x.date)}
+                date={x.date}
                 replies={x.replies} />);
 
         return (
