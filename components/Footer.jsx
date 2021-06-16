@@ -12,6 +12,6 @@ export default class Footer extends React.Component {
                     sponsored, or provided by or on behalf of North Carolina State University.
                 </p>
             </footer>
-        )
+        );
     }
 }
