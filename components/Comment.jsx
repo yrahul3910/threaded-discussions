@@ -53,11 +53,11 @@ class Comment extends React.Component {
         }
         else {
             Toastify({
-                text: 'Failed to submit reply.',
+                text: 'Reply added.',
                 duration: 3000,
                 gravity: 'bottom',
                 position: 'right',
-                backgroundColor: 'rgb(204, 0, 0)',
+                backgroundColor: 'rgb(0, 204, 0)',
                 color: 'white'
             }).showToast();
         }
