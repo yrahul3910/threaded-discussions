@@ -5,7 +5,7 @@
   "description": "Threaded messaging system",
   "main": "index.js",
   "scripts": {
-    "start": "npm-run-all --parallel server lint:watch",
+    "start": "npm run server",
     "server": "babel-node server/server.js",
     "server:dev": "webpack serve --config webpack.config.dev.js",
     "lint": "esw webpack.config.* src",
