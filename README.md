@@ -44,8 +44,6 @@ Comments in sessions are stored in a recursive form, in the `comments` collectio
 {
     id: string,
     username: string,
-    upvotes: number,
-    downvotes: number,
     text: string,
     date: Date,
     replies: [{
