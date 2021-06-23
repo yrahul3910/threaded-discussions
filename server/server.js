@@ -14,7 +14,7 @@ import jwt from 'jsonwebtoken';
 import config from '../webpack.config.dev.js';
 import dbUtils from './db';
 
-const port = 8000;
+const port = process.env.PORT || 8000;
 const app = express();
 const compiler = webpack(config);
 
