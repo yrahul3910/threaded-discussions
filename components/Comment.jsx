@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import Toastify from 'toastify-js';
+import marked from 'marked';
 
 class Comment extends React.Component {
     constructor(props) {
@@ -148,7 +149,7 @@ class Comment extends React.Component {
                             {moment(this.props.date).fromNow()}
                         </span>
                     </div>
-                    <p className='comment-text'>{this.props.text}</p>
+                    <p className='comment-text'>{marked(this.props.text)}</p>
                     <div className='comment-footer'>
                         <i onClick={() => {this.sendVote(1);}}
                             ref={this.upvoteBtn}
